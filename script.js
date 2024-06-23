@@ -1,4 +1,3 @@
-var test = 'hello world' // temp variable for testing
 var stringEquation;
 var termA;
 var termB;
@@ -10,8 +9,6 @@ var timer;
 var solveSpeed;
 var gameMode;
 var container = document.getElementsByClassName("container")[0]
-
-
 var gameOverScreen;
 var restartButton;
 
@@ -72,35 +69,51 @@ function assignSoutions(){
     }
 }
 
+
+// --------------------
+// click event handling
+// --------------------
 document.addEventListener( "click", clickHandler );
 
 function clickHandler(event){
     var element = event.target;
+
     if (element.tagName == "BUTTON" && element.id == "survival-btn"){
+        gameMode = "surival"
         startSurvivalMode();
     } else if (element.tagName == "BUTTON" && element.id == "sprint-btn"){
+        gameMode = "sprint"
         startSprintMode();
     } else if (element.tagName == "BUTTON" && element.id == "solutionA"){
         if (solutionA.innerText == solution) {
-            console.log('correct');
-            var equation = document.getElementById("equationText");
-            equation.innerText = generateEquation();
-            assignSoutions();
+            score++
+            console.log('Current Score: ' + score);
+            // var equation = document.getElementById("equationText");
+            // equation.innerText = generateEquation();
+            // assignSoutions();
+            updateGameScreen()
         } else {
             buildGameOverScreen()
         }
     } else if (element.tagName == "BUTTON" && element.id == "solutionB"){
         if (solutionB.innerText == solution) {
-            console.log('correct');
-            var equation = document.getElementById("equationText");
-            equation.innerText = generateEquation();
-            assignSoutions();
+            score++
+            console.log('Current Score: ' + score);
+            // var equation = document.getElementById("equationText");
+            // equation.innerText = generateEquation();
+            // assignSoutions();
+            updateGameScreen()
         } else {
             buildGameOverScreen()
         }
     } else if (element.tagName == "BUTTON" && element.id == "restart"){
         buildGameScreen()
         updateGameScreen()
+        startTimer()
+    } // TIMER BUTTON TESTING 
+    else if (element.tagName == "BUTTON" && element.id == "btn-start"){
+        console.log("test");
+        startTimer();
     }
 }
 
@@ -108,12 +121,14 @@ function startSurvivalMode(){
     console.log("i will suriiiive")
     buildGameScreen()
     updateGameScreen()
+    startTimer()
 }
 
 function startSprintMode(){
     console.log("spriiiiiiiiiiiint")
     buildGameScreen()
     updateGameScreen()
+    startTimer()
 }
 
 function buildGameScreen(){
@@ -132,6 +147,17 @@ function buildGameScreen(){
     
     var tempA = newElement
 
+    newElement = document.createElement("div")
+    newElement.className = "progress"
+
+    var tempB = newElement
+
+    newElement = document.createElement("div")
+    newElement.className = "progress-inner"
+
+    tempB.appendChild(newElement)
+    tempA.appendChild(tempB)
+
     newElement = document.createElement("p")
     newElement.id = "equationText"
     tempA.appendChild(newElement)
@@ -139,7 +165,7 @@ function buildGameScreen(){
     newElement = document.createElement("div")
     newElement.id = "answer-buttons"
 
-    var tempB = newElement
+    tempB = newElement
 
     newElement = document.createElement("button")
     newElement.id = "solutionA"
@@ -186,4 +212,29 @@ function buildGameOverScreen(){
     tempA.appendChild(newElement)
 
     container.appendChild(tempA)
+}
+
+
+// TIMER FUNCTION TESTING
+function startTimer() {
+    let interval = 10;
+    // console.log("start ${interval}")
+    var progressBar = document.getElementsByClassName("progress-inner")[0]
+    var timespan = document.getElementById("timertime")
+
+    var countDown = setInterval(() => {
+        console.log("start:" + interval)
+        interval--;
+        let progressWidth = interval / 10 * 100
+
+        if (interval > 0) {
+            progressBar.style.width = progressWidth + "%"
+            // timespan.innerText = interval + "s"
+        } else {
+            clearInterval(countDown)
+            console.log('hello?')
+            progressBar.style.width = "0"
+            // timespan.innerText = "game over"
+        }
+    }, 1000);
 }
