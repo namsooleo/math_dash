@@ -11,6 +11,7 @@ var gameMode;
 var container = document.getElementsByClassName("container")[0]
 var gameOverScreen;
 var restartButton;
+let countDown
 
 // returns 1 (inclusive) to max (exclusive)
 function getRandomInt(max){
@@ -88,32 +89,30 @@ function clickHandler(event){
         if (solutionA.innerText == solution) {
             score++
             console.log('Current Score: ' + score);
-            // var equation = document.getElementById("equationText");
-            // equation.innerText = generateEquation();
-            // assignSoutions();
             updateGameScreen()
+            clearInterval(countDown)
+            startTimer()
+            
         } else {
+            clearInterval(countDown)
             buildGameOverScreen()
         }
     } else if (element.tagName == "BUTTON" && element.id == "solutionB"){
         if (solutionB.innerText == solution) {
             score++
             console.log('Current Score: ' + score);
-            // var equation = document.getElementById("equationText");
-            // equation.innerText = generateEquation();
-            // assignSoutions();
             updateGameScreen()
+            clearInterval(countDown)
+            startTimer()
+            
         } else {
+            clearInterval(countDown)
             buildGameOverScreen()
         }
     } else if (element.tagName == "BUTTON" && element.id == "restart"){
         buildGameScreen()
         updateGameScreen()
         startTimer()
-    } // TIMER BUTTON TESTING 
-    else if (element.tagName == "BUTTON" && element.id == "btn-start"){
-        console.log("test");
-        startTimer();
     }
 }
 
@@ -214,27 +213,25 @@ function buildGameOverScreen(){
     container.appendChild(tempA)
 }
 
-
 // TIMER FUNCTION TESTING
 function startTimer() {
     let interval = 10;
-    // console.log("start ${interval}")
     var progressBar = document.getElementsByClassName("progress-inner")[0]
     var timespan = document.getElementById("timertime")
 
-    var countDown = setInterval(() => {
+    countDown = setInterval(() => {
         console.log("start:" + interval)
         interval--;
         let progressWidth = interval / 10 * 100
 
         if (interval > 0) {
             progressBar.style.width = progressWidth + "%"
-            // timespan.innerText = interval + "s"
         } else {
             clearInterval(countDown)
-            console.log('hello?')
             progressBar.style.width = "0"
-            // timespan.innerText = "game over"
+            console.log('gameOver?')
+            buildGameOverScreen()
+
         }
     }, 1000);
 }
