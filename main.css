@@ -55,6 +55,8 @@ footer {
     height: 5px;
     background: rgb(53, 53, 60);
     margin-bottom: 10px;
+    display: flex;
+    justify-content: center
 }
 
 .progress-inner {

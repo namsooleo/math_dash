@@ -70,7 +70,6 @@ function assignSoutions(){
     }
 }
 
-
 // --------------------
 // click event handling
 // --------------------
@@ -80,19 +79,24 @@ function clickHandler(event){
     var element = event.target;
 
     if (element.tagName == "BUTTON" && element.id == "survival-btn"){
-        gameMode = "surival"
-        startSurvivalMode();
+        gameMode = "survival"
+        buildGameScreen()
+        updateGameScreen()
+        startTimer(gameMode)
     } else if (element.tagName == "BUTTON" && element.id == "sprint-btn"){
         gameMode = "sprint"
-        startSprintMode();
+        buildGameScreen()
+        updateGameScreen()
+        startTimer(gameMode)
     } else if (element.tagName == "BUTTON" && element.id == "solutionA"){
         if (solutionA.innerText == solution) {
             score++
             console.log('Current Score: ' + score);
             updateGameScreen()
-            clearInterval(countDown)
-            startTimer()
-            
+            if (gameMode == "survival") {
+                clearInterval(countDown)
+                startTimer(gameMode)
+            }
         } else {
             clearInterval(countDown)
             buildGameOverScreen()
@@ -102,9 +106,10 @@ function clickHandler(event){
             score++
             console.log('Current Score: ' + score);
             updateGameScreen()
-            clearInterval(countDown)
-            startTimer()
-            
+            if (gameMode == "survival") {
+                clearInterval(countDown)
+                startTimer(gameMode)
+            }
         } else {
             clearInterval(countDown)
             buildGameOverScreen()
@@ -112,23 +117,10 @@ function clickHandler(event){
     } else if (element.tagName == "BUTTON" && element.id == "restart"){
         buildGameScreen()
         updateGameScreen()
-        startTimer()
+        startTimer(gameMode)
     }
 }
 
-function startSurvivalMode(){
-    console.log("i will suriiiive")
-    buildGameScreen()
-    updateGameScreen()
-    startTimer()
-}
-
-function startSprintMode(){
-    console.log("spriiiiiiiiiiiint")
-    buildGameScreen()
-    updateGameScreen()
-    startTimer()
-}
 
 function buildGameScreen(){
 
@@ -214,24 +206,36 @@ function buildGameOverScreen(){
 }
 
 // TIMER FUNCTION TESTING
-function startTimer() {
-    let interval = 10;
+function startTimer(gameMode) {
+
     var progressBar = document.getElementsByClassName("progress-inner")[0]
-    var timespan = document.getElementById("timertime")
 
-    countDown = setInterval(() => {
-        console.log("start:" + interval)
-        interval--;
-        let progressWidth = interval / 10 * 100
-
-        if (interval > 0) {
-            progressBar.style.width = progressWidth + "%"
-        } else {
-            clearInterval(countDown)
-            progressBar.style.width = "0"
-            console.log('gameOver?')
-            buildGameOverScreen()
-
-        }
-    }, 1000);
+    if (gameMode == "survival") {
+        let interval = 2.5;
+        countDown = setInterval(() => {
+            interval-= 0.005;
+            let progressWidth = (interval / 3) * 100
+            if (interval > 0) {
+                progressBar.style.width = progressWidth/2 + "%"
+            } else {
+                clearInterval(countDown)
+                progressBar.style.width = "0"
+                buildGameOverScreen()
+            }
+        }, 5);
+    } else if (gameMode == "sprint") {
+        var interval = 60;
+        countDown = setInterval(() => {
+            interval--;
+            let progressWidth = (interval / 60) * 100;
+            if (interval > 0) {
+                progressBar.style.width = progressWidth + "%"
+            } else {
+                clearInterval(countDown)
+                progressBar.style.width = "0"
+                buildGameOverScreen()
+            }
+        }, 1000);
+    }
 }
+
