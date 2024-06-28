@@ -1,51 +1,91 @@
 var stringEquation;
 var termA;
 var termB;
-var operation;
+var operator;
 var solution;
-var level = 3;
+
 var score = 0;
 var timer;
+
 var solveSpeed;
+
 var gameMode;
 var container = document.getElementsByClassName("container")[0]
 var gameOverScreen;
 var restartButton;
 let countDown
 
+function getOperator(){
+    randomNumber = Math.random()
+    if (score < 15) {
+        operator = '+';
+    } else if (score >= 15 && score <= 34) {
+        if (randomNumber < 0.5) {
+            operator = '+';
+        } else {
+            operator = '-';
+        }
+    } else if (score >= 35 && score <=60) {
+        if (randomNumber < 0.33) {
+            operator = '+';
+        } else if (randomNumber > 0.34 && randomNumber < 0.66) {
+            operator = '-';
+        } else {
+            operator = '*';
+        }
+    }
+    return operator;
+};
+
 // returns 1 (inclusive) to max (exclusive)
-function getRandomInt(max){
-    var term = Math.floor(Math.random() * (max - 1) + 1);
+function getRandomInt(){
+    if (operator == '+') {
+        if (score <= 4 ) {
+            var term = Math.floor(Math.random() * (5 - 1) + 1);
+        } else if (score >= 5 && score <= 14) {
+            var term = Math.floor(Math.random() * (10 - 1) + 1);
+        } else if (score >= 15 && score <= 29) {
+            var term = Math.floor(Math.random() * (20 - 1) + 1);
+        } else {
+            var term = Math.floor(Math.random() * (40 - 1) + 1);
+        }
+    } else if (operator == '-') {
+        if (score <= 20 ) {
+            var term = Math.floor(Math.random() * (10 - 1) + 1);
+        } else if (score >= 21 && score <= 30) {
+            var term = Math.floor(Math.random() * (20 - 1) + 1);
+        } else {
+            var term = Math.floor(Math.random() * (40 - 1) + 1);
+        } 
+    } else if (operator == '*') {
+        if (score <= 45 ) {
+            var term = Math.floor(Math.random() * (9 - 1) + 1);
+        } else if (score >= 46 && score <= 60) {
+            var term = Math.floor(Math.random() * (13 - 1) + 1);
+        } else {
+            var term = Math.floor(Math.random() * (15 - 1) + 1);
+        } 
+    }
     return term;
 };
 
-function getOperator(){
-    if (level < 5) {
-        operation = '+';
-    } else if (level < 10) {
-        if (getRandomInt(3) % 2 == 0) {
-            operation = '+';
-        } else {
-            operation = '-';
-        }
-    }
-    return operation;
-};
-
-function calculateSolution(termA, termB, operation){
-    if (operation == '+'){
+function calculateSolution(termA, termB, operator){
+    if (operator == '+'){
         return (termA + termB);
-    } else {
+    } else if (operator == '-') {
         return (termA - termB);
-    }
+    }  else if (operator == '*') {
+        return (termA * termB);
+    }  
 }
 
 function generateEquation(){
-    termA = getRandomInt(level);
-    termB = getRandomInt(level);
-    operation = getOperator();
-    solution = calculateSolution(termA, termB, operation)
-    return termA + " " + operation + " " + termB
+    operator = getOperator();
+    termA = getRandomInt();
+    termB = getRandomInt();
+    solution = calculateSolution(termA, termB, operator)
+    console.log(termA + " " + operator + " " + termB)
+    return termA + " " + operator + " " + termB
     
 }
 
@@ -53,16 +93,16 @@ function assignSoutions(){
     var solutionA = document.getElementById("solutionA");
     var solutionB = document.getElementById("solutionB");
 
-    if (getRandomInt(3) % 2 == 0){
+    if (Math.random() < 0.5){
         solutionA.innerText = solution
-        if (getRandomInt(3) % 2 == 0){
+        if (Math.random() < 0.5){
             solutionB.innerText = solution - 1
         } else {
             solutionB.innerText = solution + 1
         }
     } else {
         solutionB.innerText = solution
-        if (getRandomInt(3) % 2 == 0){
+        if (Math.random() < 0.5){
             solutionA.innerText = solution - 1
         } else {
             solutionA.innerText = solution + 1
@@ -91,7 +131,6 @@ function clickHandler(event){
     } else if (element.tagName == "BUTTON" && element.id == "solutionA"){
         if (solutionA.innerText == solution) {
             score++
-            console.log('Current Score: ' + score);
             updateGameScreen()
             if (gameMode == "survival") {
                 clearInterval(countDown)
@@ -104,7 +143,6 @@ function clickHandler(event){
     } else if (element.tagName == "BUTTON" && element.id == "solutionB"){
         if (solutionB.innerText == solution) {
             score++
-            console.log('Current Score: ' + score);
             updateGameScreen()
             if (gameMode == "survival") {
                 clearInterval(countDown)
@@ -120,7 +158,6 @@ function clickHandler(event){
         startTimer(gameMode)
     }
 }
-
 
 function buildGameScreen(){
 
@@ -205,16 +242,15 @@ function buildGameOverScreen(){
     container.appendChild(tempA)
 }
 
-// TIMER FUNCTION TESTING
 function startTimer(gameMode) {
 
     var progressBar = document.getElementsByClassName("progress-inner")[0]
 
     if (gameMode == "survival") {
-        let interval = 2.5;
+        let interval = 2;
         countDown = setInterval(() => {
             interval-= 0.005;
-            let progressWidth = (interval / 3) * 100
+            let progressWidth = (interval / 2) * 100
             if (interval > 0) {
                 progressBar.style.width = progressWidth/2 + "%"
             } else {
