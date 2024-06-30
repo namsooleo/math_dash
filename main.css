@@ -6,6 +6,7 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: Asap;
     background-color: rgb(53, 53, 60);
     color: rgb(209, 236, 240);
 }
@@ -15,6 +16,25 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center; 
+}
+
+#title-text {
+    font-size: 1.8em;
+    text-decoration: underline;
+}
+
+#equationText {
+    font-size: 1.6em;
+}
+
+#answer-buttons {
+    font-size: 1.3em;
+    font-weight: bold;  
+}   
+
+#scoreInt {
+    font-weight: bold;
+    font-size: 1.1em;
 }
 
 #menuScreen button {
@@ -31,9 +51,26 @@ body, html {
 }
 
 #gameScreen button{
-    width: 200px;
+    width: 150px;
     height: 50px;
     margin: 0px 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#gameOverScreen p {
+    font-size: 1.2em;
+}
+
+#gameOverScreen button {
+    width: 200px;
+    height: 50px;
+    margin: 20px 0;
     font-size: 1.2em;
     cursor: pointer;
     border: none;
@@ -48,6 +85,8 @@ footer {
     bottom: 10px;
     width: 100%;
     text-align: center;
+    font-style: italic;
+    font-size: 0.8em;
 }
 
 .progress {
@@ -64,3 +103,4 @@ footer {
     height: 100%;
     width: 100%;
 }
+
