@@ -1,2 +1,2 @@
 # math_dash
-web math game
+A simple math game written in vanilla JS. 
