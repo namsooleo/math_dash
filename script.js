@@ -263,6 +263,7 @@ function inputHandler(event){
                 clearInterval(countDown);
                 buildGameOverScreen();
                 gameMode = "";
+                score = 0;
             };
         } else if (element.tagName == "BUTTON" && element.id == "solutionB"){
             if (solutionB.innerText == solution) {
@@ -276,6 +277,7 @@ function inputHandler(event){
                 clearInterval(countDown);
                 buildGameOverScreen();
                 gameMode = "";
+                score = 0;
             }
         } else if (element.tagName == "BUTTON" && element.id == "restart"){
             buildMenuScreen();
