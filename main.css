@@ -32,11 +32,6 @@ body, html {
     font-weight: bold;  
 }   
 
-#scoreInt {
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
 #menuScreen button {
     width: 200px;
     height: 50px;
@@ -63,8 +58,16 @@ body, html {
     transition: background-color 0.3s ease;
 }
 
+#gameOverScreen #gameOverText {
+    font-size: 2em;
+}
+
 #gameOverScreen p {
     font-size: 1.2em;
+}
+
+#gameOverScreen .scoreInt {
+    font-weight: bold;
 }
 
 #gameOverScreen button {

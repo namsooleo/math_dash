@@ -1,15 +1,17 @@
-var stringEquation;
-var termA;
-var termB;
-var operator;
-var solution;
+let stringEquation;
+let termA;
+let termB;
+let operator;
+let solution;
 
-var score = 0;
-var gameMode; 
-var survivalTime = 1.5;
-var sprintTime = 60;
-var countDown;
-var container = document.getElementsByClassName("container")[0];
+let score = 0;
+let survivalHighScore = localStorage.getItem("Surival_High_Score") ? Number(localStorage.getItem("Surival_High_Score")) : 0;
+let sprintHighScore = localStorage.getItem("Sprint_High_Score") ? Number(localStorage.getItem("Sprint_High_Score")) : 0;
+let gameMode;  
+const survivalTime = 1.5;
+const sprintTime = 60;
+let countDown;
+const container = document.getElementsByClassName("container")[0];
 
 function getOperator(){
     let randomNumber = Math.random()
@@ -31,7 +33,7 @@ function getOperator(){
         };
     }
     return operator;
-};
+}
 
 function getRandomInt(){
     // returns 1 (inclusive) to max (exclusive)
@@ -64,7 +66,7 @@ function getRandomInt(){
         };
     };
     return term;
-};
+}
 
 function calculateSolution(termA, termB, operator){
     if (operator == '+'){
@@ -74,7 +76,7 @@ function calculateSolution(termA, termB, operator){
     }  else if (operator == '*') {
         return (termA * termB);
     };
-};
+}
 
 function generateEquation(){
     operator = getOperator();
@@ -83,7 +85,7 @@ function generateEquation(){
     solution = calculateSolution(termA, termB, operator);
     // console.log(termA + " " + operator + " " + termB)
     return termA + " " + operator + " " + termB;
-};
+}
 
 function assignSoutions(){
     let solutionA = document.getElementById("solutionA");
@@ -104,7 +106,7 @@ function assignSoutions(){
             solutionA.innerText = solution + 1;
         };
     };
-};
+}
 
 function buildMenuScreen() {
     let gameOverScreen = document.getElementById("gameOverScreen");
@@ -126,7 +128,7 @@ function buildMenuScreen() {
     tempA.appendChild(newElement);
 
     container.appendChild(tempA);
-};
+}
 
 function buildGameScreen() {
     let menuScreen = document.getElementById("menuScreen");
@@ -164,7 +166,7 @@ function buildGameScreen() {
     tempA.appendChild(tempB);
 
     container.appendChild(tempA);
-};
+}
 
 function buildGameOverScreen() {
     let gameScreen = document.getElementById("gameScreen");
@@ -173,37 +175,66 @@ function buildGameOverScreen() {
     let newElement = document.createElement("div");
     newElement.className = "container";
     newElement.id = "gameOverScreen";
-    let tempA = newElement;
+    let tempA = newElement; // div
 
     newElement = document.createElement("p");
     newElement.id = "gameOverText";
     newElement.innerText = "Game Over";
-    tempA.appendChild(newElement);
+    tempA.appendChild(newElement); // div>p
+
+    newElement = document.createElement("p");
+    newElement.id = "highScoreText";
+    newElement.innerText = "High Score: ";
+    let tempB = newElement; // p
+
+    newElement = document.createElement("span");
+    newElement.id = "scoreInt";
+    newElement.innerText = gameMode === "survival" ? survivalHighScore : sprintHighScore;
+    tempB.appendChild(newElement); // p > span
+    tempA.appendChild(tempB); // div > p + p > span
 
     newElement = document.createElement("p");
     newElement.id = "scoreText";
     newElement.innerText = "Score: ";
-    let tempB = newElement;
+    tempB = newElement; // p 
 
     newElement = document.createElement("span");
     newElement.id = "scoreInt";
     newElement.innerText = score;
-    tempB.appendChild(newElement);
-    tempA.appendChild(tempB);
+    tempB.appendChild(newElement); // p > span
+    tempA.appendChild(tempB); // div > p + p > span + p > span
     
     newElement = document.createElement("button");
     newElement.id = "restart";
     newElement.innerText = "Play Again?";
-    tempA.appendChild(newElement);
+    tempA.appendChild(newElement); // div > p + p > span ^^ + p > span ^^ + btn
 
     container.appendChild(tempA);
-};
+}
 
 function updateGameScreen() {
     let equation = document.getElementById("equationText");
     equation.innerText = generateEquation();
     assignSoutions();
-};
+}
+
+function gameOver() {
+    clearInterval(countDown);
+    if (gameMode === "survival"){
+        if (score > survivalHighScore) {
+            survivalHighScore = score;
+            localStorage.setItem("Surival_High_Score", survivalHighScore);
+        }
+    } else if (gameMode === "sprint") {
+        if (score > sprintHighScore) {
+            sprintHighScore = score;
+            localStorage.setItem("Sprint_High_Score", sprintHighScore);
+        }
+    }
+    buildGameOverScreen();
+    gameMode = "";
+    score = 0;
+}
 
 function startTimer(gameMode) {
     let progressBar = document.getElementsByClassName("progress-inner")[0]
@@ -216,26 +247,24 @@ function startTimer(gameMode) {
             if (interval > 0) {
                 progressBar.style.width = progressWidth/2 + "%";
             } else {
-                clearInterval(countDown);
                 progressBar.style.width = "0";
-                buildGameOverScreen();
+                gameOver();
             };
         }, 5);
     } else if (gameMode == "sprint") {
         let interval = sprintTime;
         countDown = setInterval(() => {
-            sprintTime--;
-            let progressWidth = (sprintTime / 60) * 100;
-            if (sprintTime > 0) {
+            interval--;
+            let progressWidth = (interval / 60) * 100;
+            if (interval > 0) {
                 progressBar.style.width = progressWidth + "%";
             } else {
-                clearInterval(countDown);
                 progressBar.style.width = "0";
-                buildGameOverScreen();
+                gameOver();
             };
         }, 1000);
     }
-};
+}
 
 function inputHandler(event){
     let element = event.target; 
@@ -251,7 +280,8 @@ function inputHandler(event){
             buildGameScreen();
             updateGameScreen();
             startTimer(gameMode);
-        } else if (element.tagName == "BUTTON" && element.id == "solutionA"){
+        } else if (element.tagName == "BUTTON" && element.id == "solutionA"){ 
+            // correct answer
             if (solutionA.innerText == solution) {
                 score++;
                 updateGameScreen();
@@ -259,13 +289,12 @@ function inputHandler(event){
                     clearInterval(countDown);
                     startTimer(gameMode);
                 };
+            // wrong answer
             } else {
-                clearInterval(countDown);
-                buildGameOverScreen();
-                gameMode = "";
-                score = 0;
+                gameOver();
             };
         } else if (element.tagName == "BUTTON" && element.id == "solutionB"){
+            // correct answer
             if (solutionB.innerText == solution) {
                 score++;
                 updateGameScreen();
@@ -273,11 +302,9 @@ function inputHandler(event){
                     clearInterval(countDown);
                     startTimer(gameMode);
                 };
+             // wrong answer
             } else {
-                clearInterval(countDown);
-                buildGameOverScreen();
-                gameMode = "";
-                score = 0;
+                gameOver();
             }
         } else if (element.tagName == "BUTTON" && element.id == "restart"){
             buildMenuScreen();
