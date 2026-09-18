@@ -23,8 +23,13 @@ body, html {
     text-decoration: underline;
 }
 
+#gameScreen {
+    gap: 24px;
+}
+
 #equationText {
     font-size: 1.6em;
+    margin: 0;
 }
 
 #answer-buttons {
@@ -94,9 +99,10 @@ footer {
 
 .progress {
     width: 100%;
-    height: 5px;
-    background: rgb(53, 53, 60);
-    margin-bottom: 10px;
+    height: 3px;
+    background: rgb(75, 75, 84);
+    border-radius: 2px;
+    overflow: hidden;
     display: flex;
     justify-content: center
 }
