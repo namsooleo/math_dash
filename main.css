@@ -78,12 +78,23 @@ body, html {
     transition: background-color 0.3s ease;
 }
 
-#gameOverScreen #gameOverText {
-    font-size: 2em;
+#gameOverScreen p {
+    margin: 0;
 }
 
-#gameOverScreen p {
-    font-size: 1.2em;
+#gameOverScreen #gameOverText {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+#gameOverScreen #scoreText {
+    font-size: 1.5em;
+}
+
+#gameOverScreen #highScoreText {
+    font-size: 1.1em;
+    color: var(--muted);
+    margin-top: 6px;
 }
 
 #gameOverScreen .scoreInt {
@@ -93,7 +104,7 @@ body, html {
 #gameOverScreen button {
     width: 200px;
     height: 50px;
-    margin: 20px 0;
+    margin: 28px 0 0;
     font-size: 1.2em;
     cursor: pointer;
     font-family: inherit;

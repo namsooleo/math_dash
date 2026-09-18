@@ -184,27 +184,27 @@ function buildGameOverScreen() {
     tempA.appendChild(newElement); // div>p
 
     newElement = document.createElement("p");
-    newElement.id = "highScoreText";
-    newElement.innerText = "High Score: ";
+    newElement.id = "scoreText";
+    newElement.innerText = "Score: ";
     let tempB = newElement; // p
 
     newElement = document.createElement("span");
-    newElement.id = "scoreInt";
-    newElement.innerText = gameMode === "survival" ? survivalHighScore : sprintHighScore;
-    tempB.appendChild(newElement); // p > span
-    tempA.appendChild(tempB); // div > p + p > span
-
-    newElement = document.createElement("p");
-    newElement.id = "scoreText";
-    newElement.innerText = "Score: ";
-    tempB = newElement; // p 
-
-    newElement = document.createElement("span");
-    newElement.id = "scoreInt";
+    newElement.className = "scoreInt";
     newElement.innerText = score;
     tempB.appendChild(newElement); // p > span
-    tempA.appendChild(tempB); // div > p + p > span + p > span
+    tempA.appendChild(tempB); // div > p + p > span
     
+    newElement = document.createElement("p");
+    newElement.id = "highScoreText";
+    newElement.innerText = "High Score: ";
+    tempB = newElement; // p
+
+    newElement = document.createElement("span");
+    newElement.className = "scoreInt";
+    newElement.innerText = gameMode === "survival" ? survivalHighScore : sprintHighScore;
+    tempB.appendChild(newElement); // p > span
+    tempA.appendChild(tempB); // div > p + p > span + p > span
+
     newElement = document.createElement("button");
     newElement.id = "restart";
     newElement.innerText = "Play Again?";
