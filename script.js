@@ -244,9 +244,9 @@ function startTimer(gameMode) {
         let interval = survivalTime;
         countDown = setInterval(() => {
             interval-= 0.005;
-            let progressWidth = (interval / 2) * 100;
+            let progressWidth = (interval / survivalTime) * 100;
             if (interval > 0) {
-                progressBar.style.width = progressWidth/2 + "%";
+                progressBar.style.width = progressWidth + "%";
             } else {
                 progressBar.style.width = "0";
                 gameOver();
