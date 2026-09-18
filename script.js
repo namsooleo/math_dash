@@ -13,59 +13,55 @@ const sprintTime = 60;
 let countDown;
 const container = document.getElementsByClassName("container")[0];
 
-function getOperator(){
-    let randomNumber = Math.random()
-    if (score < 15) {
-        operator = '+';
-    } else if (score >= 15 && score <= 34) {
-        if (randomNumber < 0.5) {
-            operator = '+';
-        } else {
-            operator = '-';
-        };
-    } else if (score >= 35 && score <=60) {
-        if (randomNumber < 0.33) {
-            operator = '+';
-        } else if (randomNumber > 0.34 && randomNumber < 0.66) {
-            operator = '-';
-        } else {
-            operator = '*';
-        };
-    }
-    return operator;
+// Difficulty curve: everything scales off score, with no upper cutoff
+function ramp(start, full) {
+    // 0 before start, 0.25 at start, grows to 1 at full
+    if (score < start) return 0;
+    return Math.min(1, 0.25 + 0.75 * (score - start) / (full - start));
 }
 
-function getRandomInt(){
-    // returns 1 (inclusive) to max (exclusive)
-    let term = 0;
-    if (operator == '+') {
-        if (score <= 4 ) {
-            term = Math.floor(Math.random() * (5 - 1) + 1);
-        } else if (score >= 5 && score <= 14) {
-            term = Math.floor(Math.random() * (10 - 1) + 1);
-        } else if (score >= 15 && score <= 29) {
-            term = Math.floor(Math.random() * (20 - 1) + 1);
-        } else {
-            term = Math.floor(Math.random() * (40 - 1) + 1);
-        };
-    } else if (operator == '-') {
-        if (score <= 20 ) {
-            term = Math.floor(Math.random() * (10 - 1) + 1);
-        } else if (score >= 21 && score <= 30) {
-            term = Math.floor(Math.random() * (20 - 1) + 1);
-        } else {
-            term = Math.floor(Math.random() * (40 - 1) + 1);
-        };
-    } else if (operator == '*') {
-        if (score <= 45 ) {
-            term = Math.floor(Math.random() * (9 - 1) + 1);
-        } else if (score >= 46 && score <= 60) {
-            term = Math.floor(Math.random() * (13 - 1) + 1);
-        } else {
-            term = Math.floor(Math.random() * (15 - 1) + 1);
-        };
+function randInt(min, max) {
+    // min and max inclusive
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getOperator(){
+    const weights = {
+        '+': 1,
+        '-': ramp(15, 25),
+        '*': ramp(35, 50),
+        '/': ramp(55, 75),
     };
-    return term;
+    let total = 0;
+    for (const op in weights) total += weights[op];
+    let roll = Math.random() * total;
+    for (const op in weights) {
+        roll -= weights[op];
+        if (roll < 0) return op;
+    }
+    return '+';
+}
+
+function getTerms(operator){
+    if (operator == '+' || operator == '-') {
+        const max = Math.min(99, 4 + score);
+        const min = Math.max(1, Math.floor(max / 4));
+        let a = randInt(min, max);
+        let b = randInt(min, max);
+        // negative answers only show up after score 30
+        if (operator == '-' && score < 30 && b > a) [a, b] = [b, a];
+        return [a, b];
+    } else if (operator == '*') {
+        const max = Math.min(15, 6 + Math.floor((score - 35) / 4));
+        const min = Math.min(3, 1 + Math.floor((score - 35) / 10));
+        return [randInt(min, max), randInt(min, max)];
+    } else if (operator == '/') {
+        // built from a product so the answer is always whole
+        const max = Math.min(12, 5 + Math.floor((score - 55) / 4));
+        const divisor = randInt(2, max);
+        const quotient = randInt(2, max);
+        return [divisor * quotient, divisor];
+    }
 }
 
 function calculateSolution(termA, termB, operator){
@@ -73,38 +69,43 @@ function calculateSolution(termA, termB, operator){
         return (termA + termB);
     } else if (operator == '-') {
         return (termA - termB);
-    }  else if (operator == '*') {
+    } else if (operator == '*') {
         return (termA * termB);
+    } else if (operator == '/') {
+        return (termA / termB);
     };
 }
 
 function generateEquation(){
     operator = getOperator();
-    termA = getRandomInt();
-    termB = getRandomInt();
+    [termA, termB] = getTerms(operator);
     solution = calculateSolution(termA, termB, operator);
-    // console.log(termA + " " + operator + " " + termB)
     return termA + " " + operator + " " + termB;
+}
+
+function getWrongAnswer(){
+    // near misses that mimic real mistakes, so parity / last digit can't give it away
+    const offsets = [1, 2];
+    if (score >= 20) offsets.push(10);
+    if (operator == '*') offsets.push(termA, termB);
+    const offset = offsets[randInt(0, offsets.length - 1)];
+    let wrong = Math.random() < 0.5 ? solution - offset : solution + offset;
+    // no negative decoys until negatives can be real answers
+    if (wrong < 0 && score < 30) wrong = solution + offset;
+    return wrong;
 }
 
 function assignSoutions(){
     let solutionA = document.getElementById("solutionA");
     let solutionB = document.getElementById("solutionB");
+    let wrong = getWrongAnswer();
 
     if (Math.random() < 0.5){
         solutionA.innerText = solution;
-        if (Math.random() < 0.5){
-            solutionB.innerText = solution - 1;
-        } else {
-            solutionB.innerText = solution + 1;
-        };
+        solutionB.innerText = wrong;
     } else {
+        solutionA.innerText = wrong;
         solutionB.innerText = solution;
-        if (Math.random() < 0.5){
-            solutionA.innerText = solution - 1;
-        } else {
-            solutionA.innerText = solution + 1;
-        };
     };
 }
 
