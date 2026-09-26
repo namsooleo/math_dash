@@ -202,6 +202,13 @@ function buildMenuScreen() {
     row.appendChild(buildMenuButton("sprint-btn", "Sprint"));
     menu.appendChild(row);
 
+    // pinned to the corner by main.css; part of the menu so it's gone during a game
+    let help = document.createElement("button");
+    help.id = "help-btn";
+    help.innerText = "?";
+    help.setAttribute("aria-label", "How to play");
+    menu.appendChild(help);
+
     container.appendChild(menu);
 }
 
@@ -322,6 +329,11 @@ function copyShare(text) {
     );
 }
 
+function showHelp(open) {
+    document.getElementById("helpScreen").hidden = !open;
+    if (open) document.getElementById("help-close").focus();
+}
+
 function updateGameScreen() {
     let equation = document.getElementById("equationText");
     equation.innerText = generateEquation();
@@ -436,6 +448,11 @@ function inputHandler(event){
             shareDaily();
         } else if (element.tagName == "BUTTON" && element.id == "restart"){
             buildMenuScreen();
+        } else if (element.tagName == "BUTTON" && element.id == "help-btn"){
+            showHelp(true);
+        } else if (element.id == "help-close" || element.id == "helpScreen"){
+            // "Got it", or a tap on the dimmed area outside the panel
+            showHelp(false);
         }
     } else if (event.type === "keydown" && gameMode) { 
         if (event.key === "ArrowLeft") {
@@ -443,6 +460,8 @@ function inputHandler(event){
         } else if (event.key === "ArrowRight") {
           document.getElementById("solutionB").click();
         };
+    } else if (event.type === "keydown" && event.key === "Escape") {
+        showHelp(false);
     };
 };
 
