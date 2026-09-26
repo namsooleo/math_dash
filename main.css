@@ -134,6 +134,10 @@ footer {
     color: var(--muted);
 }
 
+footer a {
+    color: inherit;
+}
+
 .progress {
     width: 100%;
     height: 3px;
