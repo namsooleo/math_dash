@@ -44,6 +44,12 @@ function formatDay(dateKey) {
     return new Date(year, month - 1, day).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+// Daily #1 is launch day. One number per local date, same as the seed, so equal numbers mean equal questions
+function puzzleNumber(dateKey) {
+    const [year, month, day] = dateKey.split("-").map(Number);
+    return (Date.UTC(year, month - 1, day) - Date.UTC(2026, 8, 26)) / 86400000 + 1;
+}
+
 // Only one day's results are kept: {date: "2026-09-26", survival: 34, sprint: 51}
 function loadDaily(dateKey) {
     const saved = JSON.parse(localStorage.getItem("Daily_Results"));
@@ -265,7 +271,7 @@ function buildGameOverScreen() {
     newElement = document.createElement("p");
     newElement.id = "highScoreText";
     if (daily) {
-        newElement.innerText = "Daily " + (gameMode === "survival" ? "Survival" : "Sprint") + " · " + formatDay(dailyDate);
+        newElement.innerText = "Daily " + (gameMode === "survival" ? "Survival" : "Sprint") + " #" + puzzleNumber(dailyDate) + " · " + formatDay(dailyDate);
     } else {
         newElement.innerText = "High Score: ";
         let highScore = document.createElement("span");
@@ -294,7 +300,7 @@ function buildGameOverScreen() {
 // One message with both of today's Daily scores
 function shareDaily() {
     const results = loadDaily(dailyDate);
-    const text = "Math Dash Daily · " + formatDay(dailyDate) + "\n"
+    const text = "Math Dash Daily #" + puzzleNumber(dailyDate) + " · " + formatDay(dailyDate) + "\n"
         + "Survival " + (results.survival ?? "–") + " · Sprint " + (results.sprint ?? "–") + "\n"
         + location.origin + location.pathname;
     // share sheet where there is one (phones, Safari); otherwise copy to the clipboard
