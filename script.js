@@ -322,3 +322,11 @@ function inputHandler(event){
 // Input handling
 document.addEventListener( "click", inputHandler );
 document.addEventListener("keydown", inputHandler);
+// Mobile: tap anywhere on the left/right half of the screen to answer
+document.addEventListener("touchstart", (event) => {
+    if (!gameMode) return;
+    // cancel the follow-up click: it would answer twice on a button, or hit "Play Again?" after a loss
+    event.preventDefault();
+    const x = event.changedTouches[0].clientX;
+    document.getElementById(x < window.innerWidth / 2 ? "solutionA" : "solutionB").click();
+}, { passive: false });
