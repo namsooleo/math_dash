@@ -70,9 +70,22 @@ button {
     transition: background-color 0.3s ease;
 }
 
+.menu-heading {
+    margin: 20px 0 10px;
+    font-size: 1.1em;
+    color: var(--muted);
+}
+
 #menuScreen button {
-    width: 200px;
-    margin: 10px 0;
+    width: 150px;
+    margin: 0 5px;
+}
+
+/* Daily mode already played today */
+button:disabled {
+    background-color: var(--track);
+    color: var(--muted);
+    cursor: default;
 }
 
 #gameScreen button {
@@ -135,7 +148,7 @@ footer {
 
 /* touch screens keep :hover stuck on the last tapped button */
 @media (hover: hover) {
-    button:hover {
+    button:hover:enabled {
         background-color: var(--btn-hover);
     }
 }

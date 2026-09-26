@@ -8,10 +8,53 @@ let score = 0;
 let survivalHighScore = localStorage.getItem("Surival_High_Score") ? Number(localStorage.getItem("Surival_High_Score")) : 0;
 let sprintHighScore = localStorage.getItem("Sprint_High_Score") ? Number(localStorage.getItem("Sprint_High_Score")) : 0;
 let gameMode;  
+let daily = false;
+let dailyDate;
+// Math.random in Freeplay; seeded in Daily so everyone gets the same questions
+let random = Math.random;
 const survivalTime = 1.5;
 const sprintTime = 60;
 let countDown;
 const container = document.getElementsByClassName("container")[0];
+
+// Daily mode: the seed is the local date + mode. Any wrong answer ends a run,
+// so question N is the same for every player that day.
+function seededRandom(text) {
+    // FNV-1a hash of the text, then mulberry32
+    let seed = 2166136261;
+    for (let i = 0; i < text.length; i++) {
+        seed = Math.imul(seed ^ text.charCodeAt(i), 16777619);
+    }
+    return function () {
+        seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, seed | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+function todayKey() {
+    // local date, so the Daily rolls over at the player's midnight
+    const now = new Date();
+    return now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+}
+
+function formatDay(dateKey) {
+    const [year, month, day] = dateKey.split("-").map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+// Only one day's results are kept: {date: "2026-09-26", survival: 34, sprint: 51}
+function loadDaily(dateKey) {
+    const saved = JSON.parse(localStorage.getItem("Daily_Results"));
+    return saved && saved.date === dateKey ? saved : { date: dateKey };
+}
+
+function saveDaily(dateKey, mode, result) {
+    const results = loadDaily(dateKey);
+    results[mode] = result;
+    localStorage.setItem("Daily_Results", JSON.stringify(results));
+}
 
 // Difficulty curve: everything scales off score, with no upper cutoff
 function ramp(start, full) {
@@ -22,7 +65,7 @@ function ramp(start, full) {
 
 function randInt(min, max) {
     // min and max inclusive
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(random() * (max - min + 1)) + min;
 }
 
 function getOperator(){
@@ -34,7 +77,7 @@ function getOperator(){
     };
     let total = 0;
     for (const op in weights) total += weights[op];
-    let roll = Math.random() * total;
+    let roll = random() * total;
     for (const op in weights) {
         roll -= weights[op];
         if (roll < 0) return op;
@@ -89,7 +132,7 @@ function getWrongAnswer(){
     if (score >= 20) offsets.push(10);
     if (operator == '*') offsets.push(termA, termB);
     const offset = offsets[randInt(0, offsets.length - 1)];
-    let wrong = Math.random() < 0.5 ? solution - offset : solution + offset;
+    let wrong = random() < 0.5 ? solution - offset : solution + offset;
     // no negative decoys until negatives can be real answers
     if (wrong < 0 && score < 30) wrong = solution + offset;
     return wrong;
@@ -100,7 +143,7 @@ function assignSoutions(){
     let solutionB = document.getElementById("solutionB");
     let wrong = getWrongAnswer();
 
-    if (Math.random() < 0.5){
+    if (random() < 0.5){
         solutionA.innerText = solution;
         solutionB.innerText = wrong;
     } else {
@@ -109,26 +152,51 @@ function assignSoutions(){
     };
 }
 
+function buildMenuButton(id, label, dailyResult) {
+    let button = document.createElement("button");
+    button.id = id;
+    button.innerText = label;
+    // a Daily mode already played today shows its score instead
+    if (dailyResult !== undefined) {
+        button.innerText = label + " · " + dailyResult;
+        button.disabled = true;
+    }
+    return button;
+}
+
 function buildMenuScreen() {
-    let gameOverScreen = document.getElementById("gameOverScreen");
-    gameOverScreen.remove();
+    // also used to refresh the menu itself, e.g. after midnight
+    for (const id of ["menuScreen", "gameOverScreen"]) {
+        let screen = document.getElementById(id);
+        if (screen) screen.remove();
+    }
+    const today = loadDaily(todayKey());
 
-    let newElement = document.createElement("div");
-    newElement.className = "container";
-    newElement.id = "menuScreen";
-    let tempA = newElement;
-    
-    newElement = document.createElement("button");
-    newElement.id = "survival-btn";
-    newElement.innerText = "Survival";
-    tempA.appendChild(newElement);
+    let menu = document.createElement("div");
+    menu.className = "container";
+    menu.id = "menuScreen";
 
-    newElement = document.createElement("button");
-    newElement.id = "sprint-btn";
-    newElement.innerText = "Sprint";
-    tempA.appendChild(newElement);
+    let heading = document.createElement("p");
+    heading.className = "menu-heading";
+    heading.innerText = "Daily";
+    menu.appendChild(heading);
 
-    container.appendChild(tempA);
+    let row = document.createElement("div");
+    row.appendChild(buildMenuButton("daily-survival-btn", "Survival", today.survival));
+    row.appendChild(buildMenuButton("daily-sprint-btn", "Sprint", today.sprint));
+    menu.appendChild(row);
+
+    heading = document.createElement("p");
+    heading.className = "menu-heading";
+    heading.innerText = "Freeplay";
+    menu.appendChild(heading);
+
+    row = document.createElement("div");
+    row.appendChild(buildMenuButton("survival-btn", "Survival"));
+    row.appendChild(buildMenuButton("sprint-btn", "Sprint"));
+    menu.appendChild(row);
+
+    container.appendChild(menu);
 }
 
 function buildGameScreen() {
@@ -196,18 +264,21 @@ function buildGameOverScreen() {
     
     newElement = document.createElement("p");
     newElement.id = "highScoreText";
-    newElement.innerText = "High Score: ";
-    tempB = newElement; // p
-
-    newElement = document.createElement("span");
-    newElement.className = "scoreInt";
-    newElement.innerText = gameMode === "survival" ? survivalHighScore : sprintHighScore;
-    tempB.appendChild(newElement); // p > span
-    tempA.appendChild(tempB); // div > p + p > span + p > span
+    if (daily) {
+        newElement.innerText = "Daily " + (gameMode === "survival" ? "Survival" : "Sprint") + " · " + formatDay(dailyDate);
+    } else {
+        newElement.innerText = "High Score: ";
+        let highScore = document.createElement("span");
+        highScore.className = "scoreInt";
+        highScore.innerText = gameMode === "survival" ? survivalHighScore : sprintHighScore;
+        newElement.appendChild(highScore); // p > span
+    }
+    tempA.appendChild(newElement); // div > p + p > span + p (> span)
 
     newElement = document.createElement("button");
     newElement.id = "restart";
-    newElement.innerText = "Play Again?";
+    // a Daily can't be replayed, so it just goes back
+    newElement.innerText = daily ? "Menu" : "Play Again?";
     tempA.appendChild(newElement); // div > p + p > span ^^ + p > span ^^ + btn
 
     container.appendChild(tempA);
@@ -221,7 +292,9 @@ function updateGameScreen() {
 
 function gameOver() {
     clearInterval(countDown);
-    if (gameMode === "survival"){
+    if (daily) {
+        saveDaily(dailyDate, gameMode, score);
+    } else if (gameMode === "survival"){
         if (score > survivalHighScore) {
             survivalHighScore = score;
             localStorage.setItem("Surival_High_Score", survivalHighScore);
@@ -235,6 +308,22 @@ function gameOver() {
     buildGameOverScreen();
     gameMode = "";
     score = 0;
+}
+
+function startGame(mode, isDaily) {
+    gameMode = mode;
+    daily = isDaily;
+    if (daily) {
+        dailyDate = todayKey();
+        random = seededRandom("math-dash " + dailyDate + " " + mode);
+        // counts as played from the first question, so reloading mid-run can't retry
+        saveDaily(dailyDate, mode, 0);
+    } else {
+        random = Math.random;
+    }
+    buildGameScreen();
+    updateGameScreen();
+    startTimer(gameMode);
 }
 
 function startTimer(gameMode) {
@@ -272,15 +361,13 @@ function inputHandler(event){
 
     if (event.type === "click") {
         if (element.tagName == "BUTTON" && element.id == "survival-btn"){
-            gameMode = "survival";
-            buildGameScreen();
-            updateGameScreen();
-            startTimer(gameMode);
+            startGame("survival", false);
         } else if (element.tagName == "BUTTON" && element.id == "sprint-btn"){
-            gameMode = "sprint";
-            buildGameScreen();
-            updateGameScreen();
-            startTimer(gameMode);
+            startGame("sprint", false);
+        } else if (element.tagName == "BUTTON" && element.id == "daily-survival-btn"){
+            startGame("survival", true);
+        } else if (element.tagName == "BUTTON" && element.id == "daily-sprint-btn"){
+            startGame("sprint", true);
         } else if (element.tagName == "BUTTON" && element.id == "solutionA"){ 
             // correct answer
             if (solutionA.innerText == solution) {
@@ -332,3 +419,9 @@ document.addEventListener("touchstart", (event) => {
     const x = event.changedTouches[0].clientX;
     document.getElementById(x < window.innerWidth / 2 ? "solutionA" : "solutionB").click();
 }, { passive: false });
+// An installed app can sit in the background overnight; refresh the Daily buttons when it's reopened
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && document.getElementById("menuScreen")) buildMenuScreen();
+});
+
+buildMenuScreen();
