@@ -192,6 +192,15 @@ function buildMenuScreen() {
     row.appendChild(buildMenuButton("daily-sprint-btn", "Sprint", today.sprint));
     menu.appendChild(row);
 
+    // share again after leaving the game over screen, any time until midnight
+    if (today.survival !== undefined || today.sprint !== undefined) {
+        let share = document.createElement("button");
+        share.id = "daily-share-btn";
+        share.dataset.date = today.date;
+        share.innerText = "Share Daily #" + puzzleNumber(today.date);
+        menu.appendChild(share);
+    }
+
     heading = document.createElement("p");
     heading.className = "menu-heading";
     heading.innerText = "Freeplay";
@@ -305,27 +314,26 @@ function buildGameOverScreen() {
 }
 
 // One message with both of today's Daily scores
-function shareDaily() {
-    const results = loadDaily(dailyDate);
-    const text = "🧮 Math Dash Daily #" + puzzleNumber(dailyDate) + " · " + formatDay(dailyDate) + "\n"
+function shareDaily(dateKey, button) {
+    const results = loadDaily(dateKey);
+    const text = "🧮 Math Dash Daily #" + puzzleNumber(dateKey) + " · " + formatDay(dateKey) + "\n"
         + "🏃 Survival " + (results.survival ?? "–") + "\n"
         + "⏱️ Sprint " + (results.sprint ?? "–") + "\n"
         + location.origin + location.pathname;
     // share sheet where there is one (phones, Safari); otherwise copy to the clipboard
     if (navigator.share) {
         navigator.share({ text }).catch((error) => {
-            if (error.name !== "AbortError") copyShare(text);
+            if (error.name !== "AbortError") copyShare(text, button);
         });
     } else {
-        copyShare(text);
+        copyShare(text, button);
     }
 }
 
-function copyShare(text) {
-    const button = document.getElementById("share");
+function copyShare(text, button) {
     navigator.clipboard.writeText(text).then(
-        () => { if (button) button.innerText = "Copied!"; },
-        () => { if (button) button.innerText = "Couldn't copy"; }
+        () => { button.innerText = "Copied!"; },
+        () => { button.innerText = "Couldn't copy"; }
     );
 }
 
@@ -445,7 +453,9 @@ function inputHandler(event){
                 gameOver();
             }
         } else if (element.tagName == "BUTTON" && element.id == "share"){
-            shareDaily();
+            shareDaily(dailyDate, element);
+        } else if (element.tagName == "BUTTON" && element.id == "daily-share-btn"){
+            shareDaily(element.dataset.date, element);
         } else if (element.tagName == "BUTTON" && element.id == "restart"){
             buildMenuScreen();
         } else if (element.tagName == "BUTTON" && element.id == "help-btn"){

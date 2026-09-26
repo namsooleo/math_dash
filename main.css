@@ -82,6 +82,17 @@ button {
     margin: 0 5px;
 }
 
+/* outlined, so it reads as secondary to the play buttons (#menuScreen beats the menu button size) */
+#menuScreen #daily-share-btn {
+    width: 310px;
+    height: 40px;
+    margin: 10px 0 0;
+    border: 2px solid var(--muted);
+    background-color: transparent;
+    color: var(--muted);
+    font-size: 1em;
+}
+
 /* Daily mode already played today */
 button:disabled {
     background-color: var(--track);
@@ -239,6 +250,7 @@ footer a {
         background-color: var(--btn-hover);
     }
 
+    #menuScreen #daily-share-btn:hover,
     #menuScreen #help-btn:hover {
         border-color: var(--text);
         color: var(--text);
