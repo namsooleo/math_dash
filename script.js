@@ -300,8 +300,9 @@ function buildGameOverScreen() {
 // One message with both of today's Daily scores
 function shareDaily() {
     const results = loadDaily(dailyDate);
-    const text = "Math Dash Daily #" + puzzleNumber(dailyDate) + " · " + formatDay(dailyDate) + "\n"
-        + "Survival " + (results.survival ?? "–") + " · Sprint " + (results.sprint ?? "–") + "\n"
+    const text = "🧮 Math Dash Daily #" + puzzleNumber(dailyDate) + " · " + formatDay(dailyDate) + "\n"
+        + "🏃 Survival " + (results.survival ?? "–") + "\n"
+        + "⏱️ Sprint " + (results.sprint ?? "–") + "\n"
         + location.origin + location.pathname;
     // share sheet where there is one (phones, Safari); otherwise copy to the clipboard
     if (navigator.share) {
