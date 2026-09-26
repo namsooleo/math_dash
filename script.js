@@ -322,6 +322,8 @@ function inputHandler(event){
 // Input handling
 document.addEventListener( "click", inputHandler );
 document.addEventListener("keydown", inputHandler);
+// Installable app: the service worker keeps it playable offline
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
 // Mobile: tap anywhere on the left/right half of the screen to answer
 document.addEventListener("touchstart", (event) => {
     if (!gameMode) return;
