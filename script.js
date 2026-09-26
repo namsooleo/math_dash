@@ -275,6 +275,13 @@ function buildGameOverScreen() {
     }
     tempA.appendChild(newElement); // div > p + p > span + p (> span)
 
+    if (daily) {
+        newElement = document.createElement("button");
+        newElement.id = "share";
+        newElement.innerText = "Share";
+        tempA.appendChild(newElement);
+    }
+
     newElement = document.createElement("button");
     newElement.id = "restart";
     // a Daily can't be replayed, so it just goes back
@@ -282,6 +289,30 @@ function buildGameOverScreen() {
     tempA.appendChild(newElement); // div > p + p > span ^^ + p > span ^^ + btn
 
     container.appendChild(tempA);
+}
+
+// One message with both of today's Daily scores
+function shareDaily() {
+    const results = loadDaily(dailyDate);
+    const text = "Math Dash Daily · " + formatDay(dailyDate) + "\n"
+        + "Survival " + (results.survival ?? "–") + " · Sprint " + (results.sprint ?? "–") + "\n"
+        + location.origin + location.pathname;
+    // share sheet where there is one (phones, Safari); otherwise copy to the clipboard
+    if (navigator.share) {
+        navigator.share({ text }).catch((error) => {
+            if (error.name !== "AbortError") copyShare(text);
+        });
+    } else {
+        copyShare(text);
+    }
+}
+
+function copyShare(text) {
+    const button = document.getElementById("share");
+    navigator.clipboard.writeText(text).then(
+        () => { if (button) button.innerText = "Copied!"; },
+        () => { if (button) button.innerText = "Couldn't copy"; }
+    );
 }
 
 function updateGameScreen() {
@@ -394,6 +425,8 @@ function inputHandler(event){
             } else {
                 gameOver();
             }
+        } else if (element.tagName == "BUTTON" && element.id == "share"){
+            shareDaily();
         } else if (element.tagName == "BUTTON" && element.id == "restart"){
             buildMenuScreen();
         }

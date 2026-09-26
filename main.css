@@ -121,6 +121,11 @@ button:disabled {
     margin: 28px 0 0;
 }
 
+/* Menu under Share on a Daily */
+#gameOverScreen button + button {
+    margin-top: 10px;
+}
+
 footer {
     margin-bottom: 10px;
     text-align: center;
