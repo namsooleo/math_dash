@@ -484,3 +484,8 @@ document.addEventListener("visibilitychange", () => {
 });
 
 buildMenuScreen();
+// first visit: show How to Play once
+if (!localStorage.getItem("Help_Seen")) {
+    showHelp(true);
+    localStorage.setItem("Help_Seen", "1");
+}
