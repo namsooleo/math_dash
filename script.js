@@ -322,13 +322,3 @@ function inputHandler(event){
 // Input handling
 document.addEventListener( "click", inputHandler );
 document.addEventListener("keydown", inputHandler);
-// Trying to fix touch hover
-document.addEventListener('DOMContentLoaded', function() {
-    if ('ontouchstart' in document.documentElement) {
-        document.querySelectorAll('.your-element').forEach(function(element) {
-            element.addEventListener('touchstart', function() {
-                element.classList.add('no-hover');
-            });
-        });
-    }
-});

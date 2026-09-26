@@ -143,6 +143,9 @@ footer {
 }
 
 
-button:hover {
-    background-color: var(--btn-hover);
+/* touch screens keep :hover stuck on the last tapped button */
+@media (hover: hover) {
+    button:hover {
+        background-color: var(--btn-hover);
+    }
 }
