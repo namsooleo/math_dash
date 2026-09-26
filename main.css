@@ -56,10 +56,9 @@ body > .container {
     font-weight: bold;  
 }   
 
-#menuScreen button {
-    width: 200px;
+/* shared look lives in the plain button rule, so :hover below can override it */
+button {
     height: 50px;
-    margin: 10px 0;
     font-size: 1.2em;
     cursor: pointer;
     font-family: inherit;
@@ -71,19 +70,14 @@ body > .container {
     transition: background-color 0.3s ease;
 }
 
-#gameScreen button{
+#menuScreen button {
+    width: 200px;
+    margin: 10px 0;
+}
+
+#gameScreen button {
     width: 150px;
-    height: 50px;
     margin: 0px 5px;
-    font-size: 1.2em;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: bold;
-    border: none;
-    background-color: var(--btn);
-    color: var(--btn-text);
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
 }
 
 #gameOverScreen p {
@@ -111,17 +105,7 @@ body > .container {
 
 #gameOverScreen button {
     width: 200px;
-    height: 50px;
     margin: 28px 0 0;
-    font-size: 1.2em;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: bold;
-    border: none;
-    background-color: var(--btn);
-    color: var(--btn-text);
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
 }
 
 footer {
