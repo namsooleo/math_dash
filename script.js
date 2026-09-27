@@ -12,7 +12,11 @@ let daily = false;
 let dailyDate;
 // Math.random in Freeplay; seeded in Daily so everyone gets the same questions
 let random = Math.random;
+// Survival clock: 1.5s, 0.01s less every 50 correct answers, never under 1.45s (reached at 250)
 const survivalTime = 1.5;
+const survivalStep = 0.01;
+const survivalStepEvery = 50;
+const survivalMinTime = 1.45;
 const sprintTime = 60;
 let countDown;
 const container = document.getElementsByClassName("container")[0];
@@ -394,10 +398,11 @@ function startTimer(gameMode) {
     let progressBar = document.getElementsByClassName("progress-inner")[0]
 
     if (gameMode == "survival") {
-        let interval = survivalTime;
+        const limit = Math.max(survivalMinTime, survivalTime - Math.floor(score / survivalStepEvery) * survivalStep);
+        let interval = limit;
         countDown = setInterval(() => {
             interval-= 0.005;
-            let progressWidth = (interval / survivalTime) * 100;
+            let progressWidth = (interval / limit) * 100;
             if (interval > 0) {
                 progressBar.style.width = progressWidth + "%";
             } else {
