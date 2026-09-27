@@ -3,6 +3,7 @@
     --track: #34363F;
     --text: #E8EDF2;
     --muted: #8E96A3;
+    --label: #3DDC97;
     --btn: #FFC247;
     --btn-hover: #FFD57A;
     --btn-text: #1C1D24;
@@ -80,10 +81,15 @@ button {
     transition: background-color 0.3s ease;
 }
 
+/* section label ("overline"): small, uppercase, tracked out, so it reads as a label, not a title.
+   Sits closer to its buttons than to the section above so it groups with them. */
 .menu-heading {
-    margin: 20px 0 10px;
-    font-size: 1.1em;
-    color: var(--muted);
+    margin: 28px 0 8px;
+    font-size: 0.8em;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--label);
 }
 
 #menuScreen button {
