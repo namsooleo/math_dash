@@ -313,12 +313,18 @@ function buildGameOverScreen() {
     container.appendChild(tempA);
 }
 
+// 17 -> 1️⃣7️⃣ (keycap emoji: digit + variation selector + combining keycap); unplayed -> ➖
+function emojiScore(result) {
+    if (result === undefined) return "➖";
+    return [...String(result)].map((digit) => digit + "\uFE0F\u20E3").join("");
+}
+
 // One message with both of today's Daily scores
 function shareDaily(dateKey, button) {
     const results = loadDaily(dateKey);
-    const text = "🧮 Math Dash Daily #" + puzzleNumber(dateKey) + " · " + formatDay(dateKey) + "\n"
-        + "🏃 Survival " + (results.survival ?? "–") + "\n"
-        + "⏱️ Sprint " + (results.sprint ?? "–") + "\n"
+    const text = "Math Dash #" + puzzleNumber(dateKey) + "\n\n"
+        + "Survival - " + emojiScore(results.survival) + "\n"
+        + "Sprint - " + emojiScore(results.sprint) + "\n\n"
         + location.origin + location.pathname;
     // share sheet where there is one (phones, Safari); otherwise copy to the clipboard
     if (navigator.share) {
