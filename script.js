@@ -317,19 +317,23 @@ function buildGameOverScreen() {
     container.appendChild(tempA);
 }
 
-// 17 -> 1️⃣7️⃣ (keycap emoji: digit + variation selector + combining keycap); unplayed -> ➖
-function emojiScore(result) {
-    if (result === undefined) return "➖";
-    return [...String(result)].map((digit) => digit + "\uFE0F\u20E3").join("");
+// Operators unlocked by the end of a run (− from 15, × from 35, ÷ from 55, as in getOperator).
+// Plain text, not emoji: Apple's ➕➖➗ are dark grey and vanish in dark-mode chats.
+function operatorsReached(result) {
+    return "+" + (result >= 15 ? " −" : "") + (result >= 35 ? " ×" : "") + (result >= 55 ? " ÷" : "");
 }
 
-// One message with both of today's Daily scores
+// One message with today's Daily scores; a mode not played yet is left out
 function shareDaily(dateKey, button) {
     const results = loadDaily(dateKey);
-    const text = "Math Dash #" + puzzleNumber(dateKey) + "\n\n"
-        + "Survival - " + emojiScore(results.survival) + "\n"
-        + "Sprint - " + emojiScore(results.sprint) + "\n\n"
-        + location.origin + location.pathname;
+    let text = "Math Dash #" + puzzleNumber(dateKey) + "\n\n";
+    for (const [mode, label] of [["survival", "🔥 Survival"], ["sprint", "⚡ Sprint"]]) {
+        if (results[mode] === undefined) continue;
+        // "Survival · 17" like the menu buttons, an emoji for color (plain text can't have any),
+        // the operators on their own line, a blank line between modes
+        text += label + " · " + results[mode] + "\n[ " + operatorsReached(results[mode]) + " ]\n\n";
+    }
+    text += location.origin + location.pathname;
     // share sheet where there is one (phones, Safari); otherwise copy to the clipboard
     if (navigator.share) {
         navigator.share({ text }).catch((error) => {
