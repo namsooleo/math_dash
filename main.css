@@ -15,7 +15,8 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     /* keep clear of the notch and home bar (viewport-fit=cover in index.html) */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    /* no bottom padding: the footer handles the home bar itself */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -23,6 +24,14 @@ body {
     font-family: Asap, sans-serif;
     background-color: var(--bg);
     color: var(--text);
+}
+
+/* iOS home-screen app: 100dvh comes up short by the top safe-area inset (black-translucent status bar),
+   leaving an empty band under the footer. Only 100lvh is the full screen there. */
+@media (display-mode: standalone) {
+    body {
+        min-height: 100lvh;
+    }
 }
 
 /* game fills the space above the footer, so the footer can't cover it */
@@ -138,12 +147,17 @@ button:disabled {
     margin-top: 10px;
 }
 
+/* one gap below the text: the home bar inset, or 12px where there's no home bar (was inset + 10px + the p's margin) */
 footer {
-    margin-bottom: 10px;
+    padding: 12px 0 max(12px, env(safe-area-inset-bottom));
     text-align: center;
     font-style: italic;
     font-size: 0.8em;
     color: var(--muted);
+}
+
+footer p {
+    margin: 0;
 }
 
 footer a {
