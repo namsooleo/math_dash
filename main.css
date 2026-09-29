@@ -148,7 +148,7 @@ button:disabled {
     margin: 28px 0 0;
 }
 
-/* Menu under Share on a Daily */
+/* Menu under Share on a Daily, or under Play Again */
 #gameOverScreen button + button {
     margin-top: 10px;
 }

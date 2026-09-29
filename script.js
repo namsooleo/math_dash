@@ -329,12 +329,18 @@ function buildGameOverScreen() {
             newElement.innerText = "Play Daily " + (otherMode === "survival" ? "Survival" : "Sprint");
             tempA.appendChild(newElement);
         }
+    } else {
+        // straight into another run of the same mode; a Daily can't be replayed
+        newElement = document.createElement("button");
+        newElement.id = "play-again-btn";
+        newElement.dataset.mode = gameMode;
+        newElement.innerText = "Play Again";
+        tempA.appendChild(newElement);
     }
 
     newElement = document.createElement("button");
     newElement.id = "restart";
-    // a Daily can't be replayed, so it just goes back
-    newElement.innerText = daily ? "Menu" : "Play Again?";
+    newElement.innerText = "Menu";
     tempA.appendChild(newElement); // div > p + p > span ^^ + p > span ^^ + btn
 
     container.appendChild(tempA);
@@ -496,6 +502,9 @@ function inputHandler(event){
         } else if (element.tagName == "BUTTON" && element.id == "daily-other-btn"){
             // a tap meant for the last question can land here and burn the day's only try
             if (Date.now() - gameOverAt > 600) startGame(element.dataset.mode, true);
+        } else if (element.tagName == "BUTTON" && element.id == "play-again-btn"){
+            // same guard: a late tap shouldn't start a run the player didn't see end
+            if (Date.now() - gameOverAt > 600) startGame(element.dataset.mode, false);
         } else if (element.tagName == "BUTTON" && element.id == "restart"){
             buildMenuScreen();
         } else if (element.tagName == "BUTTON" && element.id == "help-btn"){
@@ -528,7 +537,7 @@ if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
 // Mobile: tap anywhere on the left/right half of the screen to answer
 document.addEventListener("touchstart", (event) => {
     if (!gameMode) return;
-    // cancel the follow-up click: it would answer twice on a button, or hit "Play Again?" after a loss
+    // cancel the follow-up click: it would answer twice on a button, or hit a game over button after a loss
     event.preventDefault();
     const x = event.changedTouches[0].clientX;
     document.getElementById(x < window.innerWidth / 2 ? "solutionA" : "solutionB").click();
