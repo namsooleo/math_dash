@@ -30,9 +30,9 @@
     </footer>
 
     <!-- How to Play, opened from the ? on the menu -->
-    <div id="helpScreen" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
-        <div class="help-panel">
-            <p id="help-title">How to Play</p>
+    <div id="helpScreen" class="overlay" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+        <div class="panel">
+            <p id="help-title" class="panel-title">How to Play</p>
             <p>Pick the right answer. One wrong answer ends the run.</p>
             <ul>
                 <li>Tap or click an answer. On a phone, tap anywhere on its side of the screen. Keyboard: ← →</li>
@@ -40,11 +40,22 @@
                 <li><b>Sprint:</b> 60 seconds. Answer as many as you can.</li>
                 <li>It gets harder as you go: bigger numbers, then −, × and ÷.</li>
             </ul>
-            <p class="help-heading">Daily</p>
+            <p class="panel-heading">Daily</p>
             <p>Everyone gets the same questions today. One try per mode, new puzzle at midnight. Share your scores when you're done.</p>
-            <p class="help-heading">Freeplay</p>
+            <p class="panel-heading">Freeplay</p>
             <p>New questions every run. Play as much as you like; your best score is saved.</p>
             <button id="help-close">Got it</button>
+        </div>
+    </div>
+
+    <!-- High Scores, opened from the trophy on the menu; scores filled in by showScores() -->
+    <div id="scoresScreen" class="overlay" role="dialog" aria-modal="true" aria-labelledby="scores-title" hidden>
+        <div class="panel">
+            <p id="scores-title" class="panel-title">High Scores</p>
+            <p class="panel-heading">Freeplay</p>
+            <p class="score-row">Survival <span id="scores-survival" class="scoreInt"></span></p>
+            <p class="score-row">Sprint <span id="scores-sprint" class="scoreInt"></span></p>
+            <button id="scores-close">Close</button>
         </div>
     </div>
 

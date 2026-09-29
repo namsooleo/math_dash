@@ -19,6 +19,8 @@ const survivalStepEvery = 50;
 const survivalMinTime = 1.45;
 const sprintTime = 60;
 let countDown;
+// when the last run ended; see the daily-other-btn click
+let gameOverAt = 0;
 const container = document.getElementsByClassName("container")[0];
 
 // Daily mode: the seed is the local date + mode. Any wrong answer ends a run,
@@ -215,6 +217,14 @@ function buildMenuScreen() {
     row.appendChild(buildMenuButton("sprint-btn", "Sprint"));
     menu.appendChild(row);
 
+    // pinned to the corner by main.css, left of the ?; part of the menu so it's gone during a game
+    let scores = document.createElement("button");
+    scores.id = "scores-btn";
+    scores.setAttribute("aria-label", "High scores");
+    scores.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        + '<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3"/><path d="M17 6h3v1a3 3 0 0 1-3 3"/><path d="M12 14v5"/><path d="M8 20h8"/></svg>';
+    menu.appendChild(scores);
+
     // pinned to the corner by main.css; part of the menu so it's gone during a game
     let help = document.createElement("button");
     help.id = "help-btn";
@@ -226,9 +236,12 @@ function buildMenuScreen() {
 }
 
 function buildGameScreen() {
-    let menuScreen = document.getElementById("menuScreen");
-    menuScreen.remove();
-    
+    // started from the menu, or from a Daily game over (the other mode)
+    for (const id of ["menuScreen", "gameOverScreen"]) {
+        let screen = document.getElementById(id);
+        if (screen) screen.remove();
+    }
+
     let newElement = document.createElement("div");
     newElement.className = "container";
     newElement.id = "gameScreen";
@@ -306,6 +319,16 @@ function buildGameOverScreen() {
         newElement.id = "share";
         newElement.innerText = "Share";
         tempA.appendChild(newElement);
+
+        // straight into the other Daily mode, if it hasn't been played today
+        const otherMode = gameMode === "survival" ? "sprint" : "survival";
+        if (loadDaily(todayKey())[otherMode] === undefined) {
+            newElement = document.createElement("button");
+            newElement.id = "daily-other-btn";
+            newElement.dataset.mode = otherMode;
+            newElement.innerText = "Play Daily " + (otherMode === "survival" ? "Survival" : "Sprint");
+            tempA.appendChild(newElement);
+        }
     }
 
     newElement = document.createElement("button");
@@ -334,26 +357,24 @@ function shareDaily(dateKey, button) {
         text += label + " · " + results[mode] + "\n[ " + operatorsReached(results[mode]) + " ]\n\n";
     }
     text += location.origin + location.pathname;
-    // share sheet where there is one (phones, Safari); otherwise copy to the clipboard
-    if (navigator.share) {
-        navigator.share({ text }).catch((error) => {
-            if (error.name !== "AbortError") copyShare(text, button);
-        });
-    } else {
-        copyShare(text, button);
-    }
-}
-
-function copyShare(text, button) {
+    // straight to the clipboard, no share sheet
     navigator.clipboard.writeText(text).then(
         () => { button.innerText = "Copied!"; },
         () => { button.innerText = "Couldn't copy"; }
     );
 }
 
-function showHelp(open) {
-    document.getElementById("helpScreen").hidden = !open;
-    if (open) document.getElementById("help-close").focus();
+// How to Play and High Scores: dim the page, focus the panel's button
+function showOverlay(id, open) {
+    const overlay = document.getElementById(id);
+    overlay.hidden = !open;
+    if (open) overlay.querySelector("button").focus();
+}
+
+function showScores() {
+    document.getElementById("scores-survival").innerText = survivalHighScore;
+    document.getElementById("scores-sprint").innerText = sprintHighScore;
+    showOverlay("scoresScreen", true);
 }
 
 function updateGameScreen() {
@@ -364,6 +385,7 @@ function updateGameScreen() {
 
 function gameOver() {
     clearInterval(countDown);
+    gameOverAt = Date.now();
     if (daily) {
         saveDaily(dailyDate, gameMode, score);
     } else if (gameMode === "survival"){
@@ -471,13 +493,20 @@ function inputHandler(event){
             shareDaily(dailyDate, element);
         } else if (element.tagName == "BUTTON" && element.id == "daily-share-btn"){
             shareDaily(element.dataset.date, element);
+        } else if (element.tagName == "BUTTON" && element.id == "daily-other-btn"){
+            // a tap meant for the last question can land here and burn the day's only try
+            if (Date.now() - gameOverAt > 600) startGame(element.dataset.mode, true);
         } else if (element.tagName == "BUTTON" && element.id == "restart"){
             buildMenuScreen();
         } else if (element.tagName == "BUTTON" && element.id == "help-btn"){
-            showHelp(true);
+            showOverlay("helpScreen", true);
+        } else if (element.tagName == "BUTTON" && element.id == "scores-btn"){
+            showScores();
         } else if (element.id == "help-close" || element.id == "helpScreen"){
             // "Got it", or a tap on the dimmed area outside the panel
-            showHelp(false);
+            showOverlay("helpScreen", false);
+        } else if (element.id == "scores-close" || element.id == "scoresScreen"){
+            showOverlay("scoresScreen", false);
         }
     } else if (event.type === "keydown" && gameMode) { 
         if (event.key === "ArrowLeft") {
@@ -486,7 +515,8 @@ function inputHandler(event){
           document.getElementById("solutionB").click();
         };
     } else if (event.type === "keydown" && event.key === "Escape") {
-        showHelp(false);
+        showOverlay("helpScreen", false);
+        showOverlay("scoresScreen", false);
     };
 };
 
@@ -511,6 +541,6 @@ document.addEventListener("visibilitychange", () => {
 buildMenuScreen();
 // first visit: show How to Play once
 if (!localStorage.getItem("Help_Seen")) {
-    showHelp(true);
+    showOverlay("helpScreen", true);
     localStorage.setItem("Help_Seen", "1");
 }
